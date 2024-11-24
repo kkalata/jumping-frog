@@ -7,18 +7,20 @@ const char *GAME_TITLE[] = {
     "#   #  #   #  #   #  #      #  #  ##  #   #       #      #  #   #   #  #   #",
     "#####  #####  #   #  #      #  #   #  #####       #      #   #  #####  #####"};
 
-SUBWINDOW *create_subwindow(WINDOW *main_window,
-                            int col_begin,
-                            int row_begin,
-                            int width,
-                            int height)
+SUBWINDOW *create_subwindow(
+    WINDOW *main_window,
+    int col_begin,
+    int row_begin,
+    int width,
+    int height)
 {
     SUBWINDOW *subwindow = (SUBWINDOW *)malloc(sizeof(SUBWINDOW));
-    subwindow->window = subwin(main_window,
-                               height,
-                               width,
-                               row_begin,
-                               col_begin);
+    subwindow->window = subwin(
+        main_window,
+        height,
+        width,
+        row_begin,
+        col_begin);
 
     subwindow->col_begin = col_begin;
     subwindow->row_begin = row_begin;
@@ -43,17 +45,28 @@ void print_game_title(WINDOW *window)
 {
     const int GAME_TITLE_HEIGHT = sizeof(GAME_TITLE) / sizeof(GAME_TITLE[0]);
 
-    SUBWINDOW *game_title_section = create_subwindow(window,
-                                                     (COLS - strlen(GAME_TITLE[0])) / 2,
-                                                     (LINES - START_MESSAGE_HEIGHT - GAME_TITLE_HEIGHT) / 2,
-                                                     strlen(GAME_TITLE[0]),
-                                                     GAME_TITLE_HEIGHT);
+    SUBWINDOW *game_title_section = create_subwindow(
+        window,
+        (COLS - strlen(GAME_TITLE[0])) / 2,
+        (LINES - START_MESSAGE_HEIGHT - GAME_TITLE_HEIGHT) / 2,
+        strlen(GAME_TITLE[0]),
+        GAME_TITLE_HEIGHT);
 
-    wattron(game_title_section->window, COLOR_PAIR(GAME_TITLE_COLOR));
-    for (int row_i = 0; row_i < GAME_TITLE_HEIGHT; row_i++)
+    for (int row_i = 0; row_i < game_title_section->height; row_i++)
     {
-        move(row_i, 0);
-        waddstr(game_title_section->window, GAME_TITLE[row_i]);
+        for (int col_i = 0; col_i < game_title_section->width; col_i++)
+        {
+            if (GAME_TITLE[row_i][col_i] == '#')
+            {
+                wattron(game_title_section->window, COLOR_PAIR(GAME_TITLE_COLOR_REVERSED));
+            }
+            else
+            {
+                wattron(game_title_section->window, COLOR_PAIR(GAME_TITLE_COLOR));
+            }
+            move(row_i, col_i);
+            waddch(game_title_section->window, ' ');
+        }
     }
 
     delwin(game_title_section->window);
@@ -74,18 +87,20 @@ void start_game(WINDOW *window)
     getch();
     clear_window(window);
 
-    SUBWINDOW *stat_section = create_subwindow(window,
-                                               (COLS - MIN_WIDTH) / 2,
-                                               (LINES - MIN_HEIGHT) / 2,
-                                               STAT_SECTION_WIDTH,
-                                               MIN_HEIGHT);
+    SUBWINDOW *stat_section = create_subwindow(
+        window,
+        (COLS - MIN_WIDTH) / 2,
+        (LINES - MIN_HEIGHT) / 2,
+        STAT_SECTION_WIDTH,
+        MIN_HEIGHT);
     box(stat_section->window, 0, 0);
     wrefresh(stat_section->window);
 
-    SUBWINDOW *board_section = create_subwindow(window,
-                                                (COLS - STAT_SECTION_WIDTH) / 2,
-                                                (LINES - MIN_HEIGHT) / 2,
-                                                36, MIN_HEIGHT);
+    SUBWINDOW *board_section = create_subwindow(
+        window,
+        (COLS - STAT_SECTION_WIDTH) / 2,
+        (LINES - MIN_HEIGHT) / 2,
+        36, MIN_HEIGHT);
     wrefresh(board_section->window);
     getch();
 
@@ -105,6 +120,7 @@ int main()
     WINDOW *window = initscr();
     start_color();
     init_pair(GAME_TITLE_COLOR, COLOR_GREEN, COLOR_BLACK);
+    init_pair(GAME_TITLE_COLOR_REVERSED, COLOR_BLACK, COLOR_GREEN);
 
     if (window_too_small())
     {
