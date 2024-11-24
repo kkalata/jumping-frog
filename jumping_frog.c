@@ -15,10 +15,10 @@ SUBWINDOW *create_subwindow(WINDOW *main_window,
 {
     SUBWINDOW *subwindow = (SUBWINDOW *)malloc(sizeof(SUBWINDOW));
     subwindow->window = subwin(main_window,
-            height,
-            width, 
-            row_begin,
-            col_begin);
+                               height,
+                               width,
+                               row_begin,
+                               col_begin);
 
     subwindow->col_begin = col_begin;
     subwindow->row_begin = row_begin;
@@ -63,15 +63,21 @@ void start_game(WINDOW *window)
     print_game_title(window);
     print_start_message(window);
     getch();
+    clear_window(window);
+
     SUBWINDOW *stat_section = create_subwindow(window,
                                                (COLS - MIN_WIDTH) / 2,
                                                (LINES - MIN_HEIGHT) / 2,
                                                STAT_SECTION_WIDTH,
                                                MIN_HEIGHT);
-
-    clear_window(window);
     box(stat_section->window, 0, 0);
     wrefresh(stat_section->window);
+
+    SUBWINDOW *board_section = create_subwindow(window,
+                                                (COLS - STAT_SECTION_WIDTH) / 2,
+                                                (LINES - MIN_HEIGHT) / 2,
+                                                36, MIN_HEIGHT);
+    wrefresh(board_section->window);
     getch();
 }
 
