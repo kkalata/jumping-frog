@@ -80,6 +80,28 @@ void print_start_message(WINDOW *window)
     waddstr(window, MESSAGE_PRESS_TO_START);
 }
 
+void init_level(SUBWINDOW *board)
+{
+    const char objects[] = "###===##=#===###==#==###";
+    for (int row_i = board->height - 1; row_i >= 0; row_i--)
+    {
+        for (int col_i = 0; col_i < board->width; col_i++)
+        {
+            switch (objects[row_i])
+            {
+            case '#':
+                wattron(board->window, COLOR_PAIR(SAND_COLOR));
+                break;
+            case '=':
+                wattron(board->window, COLOR_PAIR(ROAD_COLOR));
+                break;
+            }
+            move(row_i, col_i);
+            waddch(board->window, ' ');
+        }
+    }
+}
+
 void start_game(WINDOW *window)
 {
     print_game_title(window);
@@ -101,6 +123,7 @@ void start_game(WINDOW *window)
         (COLS - STAT_SECTION_WIDTH) / 2,
         (LINES - MIN_HEIGHT) / 2,
         36, MIN_HEIGHT);
+    init_level(board_section);
     wrefresh(board_section->window);
     getch();
 
@@ -118,9 +141,12 @@ int window_too_small()
 int main()
 {
     WINDOW *window = initscr();
+    curs_set(0);
     start_color();
     init_pair(GAME_TITLE_COLOR, COLOR_GREEN, COLOR_BLACK);
     init_pair(GAME_TITLE_COLOR_REVERSED, COLOR_BLACK, COLOR_GREEN);
+    init_pair(SAND_COLOR, COLOR_BLACK, COLOR_YELLOW);
+    init_pair(ROAD_COLOR, COLOR_WHITE, COLOR_BLACK);
 
     if (window_too_small())
     {

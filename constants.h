@@ -3,6 +3,8 @@
 
 #define GAME_TITLE_COLOR 1
 #define GAME_TITLE_COLOR_REVERSED 2
+#define SAND_COLOR 3
+#define ROAD_COLOR 4
 
 #define STAT_SECTION_WIDTH 16
 
