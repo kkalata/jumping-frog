@@ -42,13 +42,22 @@ void clear_window(WINDOW *window)
 void print_game_title(WINDOW *window)
 {
     const int GAME_TITLE_HEIGHT = sizeof(GAME_TITLE) / sizeof(GAME_TITLE[0]);
-    int col_begin = (COLS - strlen(GAME_TITLE[0])) / 2;
-    int row_begin = (LINES - START_MESSAGE_HEIGHT - GAME_TITLE_HEIGHT) / 2;
+
+    SUBWINDOW *game_title_section = create_subwindow(window,
+                                                     (COLS - strlen(GAME_TITLE[0])) / 2,
+                                                     (LINES - START_MESSAGE_HEIGHT - GAME_TITLE_HEIGHT) / 2,
+                                                     strlen(GAME_TITLE[0]),
+                                                     GAME_TITLE_HEIGHT);
+
+    wattron(game_title_section->window, COLOR_PAIR(GAME_TITLE_COLOR));
     for (int row_i = 0; row_i < GAME_TITLE_HEIGHT; row_i++)
     {
-        move(row_i + row_begin, col_begin);
-        waddstr(window, GAME_TITLE[row_i]);
+        move(row_i, 0);
+        waddstr(game_title_section->window, GAME_TITLE[row_i]);
     }
+
+    delwin(game_title_section->window);
+    free(game_title_section);
 }
 
 void print_start_message(WINDOW *window)
@@ -79,6 +88,11 @@ void start_game(WINDOW *window)
                                                 36, MIN_HEIGHT);
     wrefresh(board_section->window);
     getch();
+
+    delwin(stat_section->window);
+    delwin(board_section->window);
+    free(stat_section);
+    free(board_section);
 }
 
 int window_too_small()
@@ -89,6 +103,8 @@ int window_too_small()
 int main()
 {
     WINDOW *window = initscr();
+    start_color();
+    init_pair(GAME_TITLE_COLOR, COLOR_GREEN, COLOR_BLACK);
 
     if (window_too_small())
     {

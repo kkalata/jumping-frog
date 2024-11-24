@@ -1,6 +1,8 @@
 #define MIN_WIDTH 80
 #define MIN_HEIGHT 24
 
+#define GAME_TITLE_COLOR 1
+
 #define STAT_SECTION_WIDTH 16
 
 #define START_MESSAGE_HEIGHT 3
