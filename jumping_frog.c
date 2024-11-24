@@ -1,24 +1,45 @@
-#include <stdio.h>
-#include <string.h>
+#include "jumping_frog.h"
 
-#include <ncurses.h>
-
-#include "messages.h"
-
-#define MIN_WIDTH 80
-#define MIN_HEIGHT 24
-
-#define START_MESSAGE_HEIGHT 3
-
-const char* GAME_TITLE[] = {
+const char *GAME_TITLE[] = {
     "    #  #   #  #   #  #####  #  #   #  #####       #####  #####  #####  #####",
     "    #  #   #  ## ##  #   #  #  ##  #  #           #      #   #  #   #  #    ",
     "    #  #   #  # # #  #####  #  # # #  #  ##       ###    #####  #   #  #  ##",
     "#   #  #   #  #   #  #      #  #  ##  #   #       #      #  #   #   #  #   #",
-    "#####  #####  #   #  #      #  #   #  #####       #      #   #  #####  #####"
-};
+    "#####  #####  #   #  #      #  #   #  #####       #      #   #  #####  #####"};
 
-void print_game_title(WINDOW* window)
+SUBWINDOW *create_subwindow(WINDOW *main_window,
+                            int col_begin,
+                            int row_begin,
+                            int width,
+                            int height)
+{
+    SUBWINDOW *subwindow = (SUBWINDOW *)malloc(sizeof(SUBWINDOW));
+    subwindow->window = subwin(main_window,
+            height,
+            width, 
+            row_begin,
+            col_begin);
+
+    subwindow->col_begin = col_begin;
+    subwindow->row_begin = row_begin;
+    subwindow->width = width;
+    subwindow->height = height;
+
+    return subwindow;
+}
+
+void clear_window(WINDOW *window)
+{
+    for (int row_i = 0; row_i < LINES; row_i++)
+    {
+        for (int col_i = 0; col_i < COLS; col_i++)
+        {
+            mvwprintw(window, row_i, col_i, " ");
+        }
+    }
+}
+
+void print_game_title(WINDOW *window)
 {
     const int GAME_TITLE_HEIGHT = sizeof(GAME_TITLE) / sizeof(GAME_TITLE[0]);
     int col_begin = (COLS - strlen(GAME_TITLE[0])) / 2;
@@ -30,16 +51,27 @@ void print_game_title(WINDOW* window)
     }
 }
 
-void print_start_message(WINDOW* window)
+void print_start_message(WINDOW *window)
 {
-    move(LINES - START_MESSAGE_HEIGHT + 1, (COLS - strlen(MESSAGE_PRESS_TO_START)) / 2);
+    move(LINES - START_MESSAGE_HEIGHT + 1,
+         (COLS - strlen(MESSAGE_PRESS_TO_START)) / 2);
     waddstr(window, MESSAGE_PRESS_TO_START);
 }
 
-void start_game(WINDOW* window)
+void start_game(WINDOW *window)
 {
     print_game_title(window);
     print_start_message(window);
+    getch();
+    SUBWINDOW *stat_section = create_subwindow(window,
+                                               (COLS - MIN_WIDTH) / 2,
+                                               (LINES - MIN_HEIGHT) / 2,
+                                               STAT_SECTION_WIDTH,
+                                               MIN_HEIGHT);
+
+    clear_window(window);
+    box(stat_section->window, 0, 0);
+    wrefresh(stat_section->window);
     getch();
 }
 
@@ -50,7 +82,7 @@ int window_too_small()
 
 int main()
 {
-    WINDOW* window = initscr();
+    WINDOW *window = initscr();
 
     if (window_too_small())
     {
