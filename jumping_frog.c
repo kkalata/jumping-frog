@@ -9,10 +9,10 @@ const char *GAME_TITLE[] = {
 
 SUBWINDOW *create_subwindow(
     WINDOW *main_window,
-    int col_offset,
-    int row_offset,
-    int width,
-    int height)
+    const int col_offset,
+    const int row_offset,
+    const int width,
+    const int height)
 {
     SUBWINDOW *subwindow = (SUBWINDOW *)malloc(sizeof(SUBWINDOW));
     subwindow->window = subwin(
@@ -93,7 +93,7 @@ FROG *create_frog(const SUBWINDOW *board)
     return frog;
 }
 
-void init_level(SUBWINDOW *board, FROG *frog)
+void init_level(SUBWINDOW *board, const FROG *frog)
 {
     const char objects[] = "###===##=#===###==#==###";
     for (int row_i = board->height - 1; row_i >= 0; row_i--)
@@ -122,7 +122,7 @@ void init_level(SUBWINDOW *board, FROG *frog)
     }
 }
 
-void move_frog(FROG *frog, const SUBWINDOW *board, int key)
+void move_frog(FROG *frog, const SUBWINDOW *board, const int key)
 {
     switch (key)
     {
