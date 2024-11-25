@@ -46,6 +46,12 @@ void print_start_message(WINDOW *window)
     waddstr(window, MESSAGE_PRESS_TO_START);
 }
 
+void print_stats(SUBWINDOW *stat_section, const FROG *frog)
+{
+    clear_window(stat_section->window);
+    mvwprintw(stat_section->window, 1, 1, "Pos: (%d, %d)", frog->row, frog->col);
+}
+
 void print_board(SUBWINDOW *board, const char board_layout[], const FROG *frog, const CARS cars)
 {
     for (int row_i = board->height - 1; row_i >= 0; row_i--)
@@ -88,8 +94,6 @@ void start_game(WINDOW *window)
         (LINES - MIN_HEIGHT) / 2,
         STAT_SECTION_WIDTH,
         MIN_HEIGHT);
-    box(stat_section->window, 0, 0);
-    wrefresh(stat_section->window);
 
     SUBWINDOW *board_section = create_subwindow(
         window,
@@ -106,10 +110,16 @@ void start_game(WINDOW *window)
     halfdelay(2);
     while (1)
     {
+        print_stats(stat_section, frog);
+        box(stat_section->window, 0, 0);
+        wrefresh(stat_section->window);
+
         print_board(board_section, board_layout, frog, cars);
         wrefresh(board_section->window);
+
         int key = getch();
         move_frog(frog, board_section, key);
+        
         move_cars(&cars);
     }
 
