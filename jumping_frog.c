@@ -87,8 +87,8 @@ FROG *create_frog(const SUBWINDOW *board)
     frog->col = board->width / 2 - 1;
     frog->row = board->height - 1;
     frog->symbol = '"';
-    frog->color.alive = COLOR_PAIR(ALIVE_FROG_COLOR);
-    frog->color.dead = COLOR_PAIR(DEAD_FROG_COLOR);
+    frog->color.alive = ALIVE_FROG_COLOR;
+    frog->color.dead = DEAD_FROG_COLOR;
 
     return frog;
 }
@@ -102,7 +102,7 @@ void init_level(SUBWINDOW *board, FROG *frog)
         {
             if (row_i == frog->row && col_i == frog->col)
             {
-                wattron(board->window, COLOR_PAIR(ALIVE_FROG_COLOR));
+                wattron(board->window, COLOR_PAIR(frog->color.alive));
                 mvwaddch(board->window, row_i, col_i, frog->symbol);
             }
             else
