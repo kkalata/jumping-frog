@@ -5,7 +5,7 @@ Frogger-like game written in C using ncurses library.
 The game is being written as a part of basics of computer programming classes at Gdańsk University of Technology, Faculty of Electronics, Telecommunications and Informatics. The requirements are listed below:
 
 1. Obligatory (graphics, logic, code)
-    - [ ] Basic user interface: status, playable area, jumping frog, moving cars, streets (lanes), destination place, colors (1 pt)
+    - [x] Basic user interface: status, playable area, jumping frog, moving cars, streets (lanes), destination place, colors (1 pt)
     - [ ] Five or more cars constantly moving and randomly appearing which are wrapping or bouncing, detection of collisions between frog and cars (1 pt)
     - [ ] Timer and timing mechanism, cars running at different speeds, frog jumping with time breaks between jumps (1 pt)
     - [ ] Using separate configuration text file with parameters of the game, e.g. size and shape of the frog and cars playing area, number, types and speed of cars, random seeds, colors, etc. (1 pt)
