@@ -80,12 +80,12 @@ void print_start_message(WINDOW *window)
     waddstr(window, MESSAGE_PRESS_TO_START);
 }
 
-FROG* create_frog(const SUBWINDOW* board)
+FROG *create_frog(const SUBWINDOW *board)
 {
-    FROG *frog = (FROG*)malloc(sizeof(FROG));
+    FROG *frog = (FROG *)malloc(sizeof(FROG));
 
-    frog->col = board->width / 2 - 1 + board->col_offset;
-    frog->row = board->height - 1 + board->row_offset;
+    frog->col = board->width / 2 - 1;
+    frog->row = board->height - 1;
     frog->symbol = '"';
     frog->color.alive = COLOR_PAIR(ALIVE_FROG_COLOR);
     frog->color.dead = COLOR_PAIR(DEAD_FROG_COLOR);
@@ -93,23 +93,31 @@ FROG* create_frog(const SUBWINDOW* board)
     return frog;
 }
 
-void init_level(SUBWINDOW *board)
+void init_level(SUBWINDOW *board, FROG *frog)
 {
     const char objects[] = "###===##=#===###==#==###";
     for (int row_i = board->height - 1; row_i >= 0; row_i--)
     {
         for (int col_i = 0; col_i < board->width; col_i++)
         {
-            switch (objects[row_i])
+            if (row_i == frog->row && col_i == frog->col)
             {
-            case '#':
-                wattron(board->window, COLOR_PAIR(SAND_COLOR));
-                break;
-            case '=':
-                wattron(board->window, COLOR_PAIR(ROAD_COLOR));
-                break;
+                wattron(board->window, COLOR_PAIR(ALIVE_FROG_COLOR));
+                mvwaddch(board->window, row_i, col_i, frog->symbol);
             }
-            waddch(board->window, ' ');
+            else
+            {
+                switch (objects[board->height - row_i - 1])
+                {
+                case '#':
+                    wattron(board->window, COLOR_PAIR(SAND_COLOR));
+                    break;
+                case '=':
+                    wattron(board->window, COLOR_PAIR(ROAD_COLOR));
+                    break;
+                }
+                mvwaddch(board->window, row_i, col_i, ' ');
+            }
         }
     }
 }
@@ -136,11 +144,30 @@ void start_game(WINDOW *window)
         (LINES - MIN_HEIGHT) / 2,
         BOARD_WIDTH,
         MIN_HEIGHT);
-    init_level(board_section);
-    
+
     FROG *frog = create_frog(board_section);
-    wrefresh(board_section->window);
-    getch();
+    nodelay(window, 1);
+    while (1)
+    {
+        init_level(board_section, frog);
+        wrefresh(board_section->window);
+        int c = getch();
+        switch (c)
+        {
+        case KEY_UP:
+            frog->row -= 1;
+            break;
+        case KEY_DOWN:
+            frog->row += 1;
+            break;
+        case KEY_LEFT:
+            frog->col -= 1;
+            break;
+        case KEY_RIGHT:
+            frog->col += 1;
+            break;
+        }
+    }
 
     delwin(stat_section->window);
     delwin(board_section->window);
@@ -156,6 +183,7 @@ int window_too_small()
 int main()
 {
     WINDOW *window = initscr();
+    noecho();
     curs_set(0);
     start_color();
     init_pair(GAME_TITLE_COLOR, COLOR_GREEN, COLOR_BLACK);
@@ -164,6 +192,7 @@ int main()
     init_pair(ROAD_COLOR, COLOR_WHITE, COLOR_BLACK);
     init_pair(ALIVE_FROG_COLOR, COLOR_BLACK, COLOR_GREEN);
     init_pair(DEAD_FROG_COLOR, COLOR_GREEN, COLOR_RED);
+    keypad(window, 1);
 
     if (window_too_small())
     {
