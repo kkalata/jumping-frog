@@ -1,0 +1,6 @@
+#define CAR_DIRECTION_LEFT 0
+#define CAR_DIRECTION_RIGHT 1
+
+#define CAR_TYPE_CAR 1
+
+#define CAR_LENGTH_CAR 2

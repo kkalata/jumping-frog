@@ -40,6 +40,7 @@ CARS place_car(SUBWINDOW *board, CARS cars, int col_i, int row_i)
             // check if car is at (row_i, col_i)
             if ((car.direction == CAR_DIRECTION_RIGHT && col_i > car.front_col - car.length && col_i <= car.front_col) || (car.direction == CAR_DIRECTION_LEFT && col_i >= car.front_col && col_i < car.front_col + car.length))
             {
+                wattron(board->window, COLOR_PAIR(CAR_COLOR));
                 mvwaddch(board->window, row_i, col_i, '#');
             }
         }

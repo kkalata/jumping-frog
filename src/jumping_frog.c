@@ -158,6 +158,7 @@ int main()
     init_pair(ROAD_COLOR, COLOR_WHITE, COLOR_BLACK);
     init_pair(ALIVE_FROG_COLOR, COLOR_BLACK, COLOR_GREEN);
     init_pair(DEAD_FROG_COLOR, COLOR_GREEN, COLOR_RED);
+    init_pair(CAR_COLOR, COLOR_WHITE, COLOR_RED);
     keypad(window, 1);
 
     if (window_too_small())
