@@ -9,8 +9,8 @@ const char *GAME_TITLE[] = {
 
 SUBWINDOW *create_subwindow(
     WINDOW *main_window,
-    int col_begin,
-    int row_begin,
+    int col_offset,
+    int row_offset,
     int width,
     int height)
 {
@@ -19,11 +19,11 @@ SUBWINDOW *create_subwindow(
         main_window,
         height,
         width,
-        row_begin,
-        col_begin);
+        row_offset,
+        col_offset);
 
-    subwindow->col_begin = col_begin;
-    subwindow->row_begin = row_begin;
+    subwindow->col_offset = col_offset;
+    subwindow->row_offset = row_offset;
     subwindow->width = width;
     subwindow->height = height;
 
@@ -80,6 +80,19 @@ void print_start_message(WINDOW *window)
     waddstr(window, MESSAGE_PRESS_TO_START);
 }
 
+FROG* create_frog(const SUBWINDOW* board)
+{
+    FROG *frog = (FROG*)malloc(sizeof(FROG));
+
+    frog->col = board->width / 2 - 1 + board->col_offset;
+    frog->row = board->height - 1 + board->row_offset;
+    frog->symbol = '"';
+    frog->color.alive = COLOR_PAIR(ALIVE_FROG_COLOR);
+    frog->color.dead = COLOR_PAIR(DEAD_FROG_COLOR);
+
+    return frog;
+}
+
 void init_level(SUBWINDOW *board)
 {
     const char objects[] = "###===##=#===###==#==###";
@@ -96,7 +109,6 @@ void init_level(SUBWINDOW *board)
                 wattron(board->window, COLOR_PAIR(ROAD_COLOR));
                 break;
             }
-            move(row_i, col_i);
             waddch(board->window, ' ');
         }
     }
@@ -122,8 +134,11 @@ void start_game(WINDOW *window)
         window,
         (COLS - STAT_SECTION_WIDTH) / 2,
         (LINES - MIN_HEIGHT) / 2,
-        36, MIN_HEIGHT);
+        BOARD_WIDTH,
+        MIN_HEIGHT);
     init_level(board_section);
+    
+    FROG *frog = create_frog(board_section);
     wrefresh(board_section->window);
     getch();
 
@@ -147,6 +162,8 @@ int main()
     init_pair(GAME_TITLE_COLOR_REVERSED, COLOR_BLACK, COLOR_GREEN);
     init_pair(SAND_COLOR, COLOR_BLACK, COLOR_YELLOW);
     init_pair(ROAD_COLOR, COLOR_WHITE, COLOR_BLACK);
+    init_pair(ALIVE_FROG_COLOR, COLOR_BLACK, COLOR_GREEN);
+    init_pair(DEAD_FROG_COLOR, COLOR_GREEN, COLOR_RED);
 
     if (window_too_small())
     {

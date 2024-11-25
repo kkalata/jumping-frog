@@ -10,8 +10,18 @@
 typedef struct
 {
     WINDOW *window;
-    int col_begin;
-    int row_begin;
+    int col_offset;
+    int row_offset;
     int width;
     int height;
 } SUBWINDOW;
+
+typedef struct {
+    int col;
+    int row;
+    char symbol;
+    struct {
+        int alive;
+        int dead;
+    } color;
+} FROG;
