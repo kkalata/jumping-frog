@@ -25,3 +25,16 @@ typedef struct {
         int dead;
     } color;
 } FROG;
+
+typedef struct {
+    int row;
+    int front_col;
+    int direction;
+    int type;
+    int length;
+} CAR;
+
+typedef struct {
+    CAR *cars;
+    int count;
+} CARS;

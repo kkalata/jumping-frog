@@ -93,9 +93,54 @@ FROG *create_frog(const SUBWINDOW *board)
     return frog;
 }
 
-void print_board(SUBWINDOW *board, const FROG *frog)
+CARS create_cars(SUBWINDOW *board, const char board_layout[])
 {
-    const char objects[] = "###===##=#===###==#==###";
+    int road_lanes = 0;
+    for (int i = 0; board_layout[i] != '\0'; i++)
+    {
+        road_lanes += board_layout[i] == '=';
+    }
+
+    CARS cars;
+
+    cars.cars = malloc(road_lanes * sizeof(CAR));
+
+    for (int row_i = 0, car_i = 0; board_layout[row_i] != '\0' && car_i < road_lanes; row_i++)
+    {
+        if (board_layout[row_i] == '=')
+        {
+            cars.cars[car_i].row = strlen(board_layout) - row_i - 1;
+            cars.cars[car_i].front_col = car_i;
+            cars.cars[car_i].direction = CAR_DIRECTION_RIGHT;
+            cars.cars[car_i].type = CAR_TYPE_CAR;
+            cars.cars[car_i].length = CAR_LENGTH_CAR;
+            car_i++;
+        }
+    }
+
+    cars.count = road_lanes;
+
+    return cars;
+}
+
+CARS place_car(SUBWINDOW *board, CARS cars, int col_i, int row_i)
+{
+    for (int car_i = 0; car_i < cars.count; car_i++)
+    {
+        CAR car = cars.cars[car_i];
+        if (car.row == row_i)
+        {
+            // check if car is at (row_i, col_i)
+            if ((car.direction == CAR_DIRECTION_RIGHT && col_i > car.front_col - car.length && col_i <= car.front_col) || (car.direction == CAR_DIRECTION_LEFT && col_i >= car.front_col && col_i < car.front_col + car.length))
+            {
+                mvwaddch(board->window, row_i, col_i, '#');
+            }
+        }
+    }
+}
+
+void print_board(SUBWINDOW *board, const char board_layout[], const FROG *frog, const CARS cars)
+{
     for (int row_i = board->height - 1; row_i >= 0; row_i--)
     {
         for (int col_i = 0; col_i < board->width; col_i++)
@@ -107,7 +152,7 @@ void print_board(SUBWINDOW *board, const FROG *frog)
             }
             else
             {
-                switch (objects[board->height - row_i - 1])
+                switch (board_layout[board->height - row_i - 1])
                 {
                 case '#':
                     wattron(board->window, COLOR_PAIR(SAND_COLOR));
@@ -117,6 +162,7 @@ void print_board(SUBWINDOW *board, const FROG *frog)
                     break;
                 }
                 mvwaddch(board->window, row_i, col_i, ' ');
+                place_car(board, cars, col_i, row_i);
             }
         }
     }
@@ -153,6 +199,23 @@ void move_frog(FROG *frog, const SUBWINDOW *board, const int key)
     }
 }
 
+void move_cars(CARS *cars)
+{
+    for (int car_i = 0; car_i < cars->count; car_i++)
+    {
+        CAR *car = &cars->cars[car_i];
+        switch (car->direction)
+        {
+        case CAR_DIRECTION_LEFT:
+            car->front_col--;
+            break;
+        case CAR_DIRECTION_RIGHT:
+            car->front_col++;
+            break;
+        }
+    }
+}
+
 void start_game(WINDOW *window)
 {
     print_game_title(window);
@@ -176,14 +239,19 @@ void start_game(WINDOW *window)
         BOARD_WIDTH,
         MIN_HEIGHT);
 
+    const char board_layout[] = "###===##=#===###==#==###";
+
     FROG *frog = create_frog(board_section);
-    nodelay(window, 1);
+    CARS cars = create_cars(board_section, board_layout);
+
+    halfdelay(2);
     while (1)
     {
-        print_board(board_section, frog);
+        print_board(board_section, board_layout, frog, cars);
         wrefresh(board_section->window);
         int key = getch();
         move_frog(frog, board_section, key);
+        move_cars(&cars);
     }
 
     delwin(stat_section->window);
