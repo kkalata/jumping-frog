@@ -93,7 +93,7 @@ FROG *create_frog(const SUBWINDOW *board)
     return frog;
 }
 
-void init_level(SUBWINDOW *board, const FROG *frog)
+void print_board(SUBWINDOW *board, const FROG *frog)
 {
     const char objects[] = "###===##=#===###==#==###";
     for (int row_i = board->height - 1; row_i >= 0; row_i--)
@@ -180,7 +180,7 @@ void start_game(WINDOW *window)
     nodelay(window, 1);
     while (1)
     {
-        init_level(board_section, frog);
+        print_board(board_section, frog);
         wrefresh(board_section->window);
         int key = getch();
         move_frog(frog, board_section, key);
