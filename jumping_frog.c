@@ -7,40 +7,6 @@ const char *GAME_TITLE[] = {
     "#   #  #   #  #   #  #      #  #  ##  #   #       #      #  #   #   #  #   #",
     "#####  #####  #   #  #      #  #   #  #####       #      #   #  #####  #####"};
 
-SUBWINDOW *create_subwindow(
-    WINDOW *main_window,
-    const int col_offset,
-    const int row_offset,
-    const int width,
-    const int height)
-{
-    SUBWINDOW *subwindow = (SUBWINDOW *)malloc(sizeof(SUBWINDOW));
-    subwindow->window = subwin(
-        main_window,
-        height,
-        width,
-        row_offset,
-        col_offset);
-
-    subwindow->col_offset = col_offset;
-    subwindow->row_offset = row_offset;
-    subwindow->width = width;
-    subwindow->height = height;
-
-    return subwindow;
-}
-
-void clear_window(WINDOW *window)
-{
-    for (int row_i = 0; row_i < LINES; row_i++)
-    {
-        for (int col_i = 0; col_i < COLS; col_i++)
-        {
-            mvwprintw(window, row_i, col_i, " ");
-        }
-    }
-}
-
 void print_game_title(WINDOW *window)
 {
     const int GAME_TITLE_HEIGHT = sizeof(GAME_TITLE) / sizeof(GAME_TITLE[0]);
@@ -80,65 +46,6 @@ void print_start_message(WINDOW *window)
     waddstr(window, MESSAGE_PRESS_TO_START);
 }
 
-FROG *create_frog(const SUBWINDOW *board)
-{
-    FROG *frog = (FROG *)malloc(sizeof(FROG));
-
-    frog->col = board->width / 2 - 1;
-    frog->row = board->height - 1;
-    frog->symbol = '"';
-    frog->color.alive = ALIVE_FROG_COLOR;
-    frog->color.dead = DEAD_FROG_COLOR;
-
-    return frog;
-}
-
-CARS create_cars(SUBWINDOW *board, const char board_layout[])
-{
-    int road_lanes = 0;
-    for (int i = 0; board_layout[i] != '\0'; i++)
-    {
-        road_lanes += board_layout[i] == '=';
-    }
-
-    CARS cars;
-
-    cars.cars = malloc(road_lanes * sizeof(CAR));
-
-    for (int row_i = 0, car_i = 0; board_layout[row_i] != '\0' && car_i < road_lanes; row_i++)
-    {
-        if (board_layout[row_i] == '=')
-        {
-            cars.cars[car_i].row = strlen(board_layout) - row_i - 1;
-            cars.cars[car_i].front_col = car_i;
-            cars.cars[car_i].direction = CAR_DIRECTION_RIGHT;
-            cars.cars[car_i].type = CAR_TYPE_CAR;
-            cars.cars[car_i].length = CAR_LENGTH_CAR;
-            car_i++;
-        }
-    }
-
-    cars.count = road_lanes;
-
-    return cars;
-}
-
-CARS place_car(SUBWINDOW *board, CARS cars, int col_i, int row_i)
-{
-    for (int car_i = 0; car_i < cars.count; car_i++)
-    {
-        CAR car = cars.cars[car_i];
-        if (car.row == row_i)
-        {
-            // check if car is at (row_i, col_i)
-            if ((car.direction == CAR_DIRECTION_RIGHT && col_i > car.front_col - car.length && col_i <= car.front_col) || (car.direction == CAR_DIRECTION_LEFT && col_i >= car.front_col && col_i < car.front_col + car.length))
-            {
-                mvwaddch(board->window, row_i, col_i, '#');
-            }
-        }
-    }
-}
-
 void print_board(SUBWINDOW *board, const char board_layout[], const FROG *frog, const CARS cars)
 {
     for (int row_i = board->height - 1; row_i >= 0; row_i--)
@@ -164,54 +71,6 @@ void print_board(SUBWINDOW *board, const char board_layout[], const FROG *frog, 
                 mvwaddch(board->window, row_i, col_i, ' ');
                 place_car(board, cars, col_i, row_i);
             }
-        }
-    }
-}
-
-void move_frog(FROG *frog, const SUBWINDOW *board, const int key)
-{
-    switch (key)
-    {
-    case KEY_UP:
-        if (frog->row - 1 >= 0)
-        {
-            frog->row -= 1;
-        }
-        break;
-    case KEY_DOWN:
-        if (frog->row + 1 < board->height)
-        {
-            frog->row += 1;
-        }
-        break;
-    case KEY_LEFT:
-        if (frog->col - 1 >= 0)
-        {
-            frog->col -= 1;
-        }
-        break;
-    case KEY_RIGHT:
-        if (frog->col + 1 < board->width)
-        {
-            frog->col += 1;
-        }
-        break;
-    }
-}
-
-void move_cars(CARS *cars)
-{
-    for (int car_i = 0; car_i < cars->count; car_i++)
-    {
-        CAR *car = &cars->cars[car_i];
-        switch (car->direction)
-        {
-        case CAR_DIRECTION_LEFT:
-            car->front_col--;
-            break;
-        case CAR_DIRECTION_RIGHT:
-            car->front_col++;
-            break;
         }
     }
 }
