@@ -50,6 +50,10 @@ void print_stats(SUBWINDOW *stat_section, const FROG *frog)
 {
     clear_window(stat_section->window);
     mvwprintw(stat_section->window, 1, 1, "Pos: (%d, %d)", frog->row, frog->col);
+    if (frog->row == 0)
+    {
+        mvwprintw(stat_section->window, 2, 1, "You won!");
+    }
 }
 
 void print_board(SUBWINDOW *board, const char board_layout[], const FROG *frog, const CARS cars)
@@ -107,9 +111,16 @@ void start_game(WINDOW *window)
     FROG *frog = create_frog(board_section);
     CARS cars = create_cars(board_section, board_layout);
 
+    int win = 0;
     halfdelay(2);
-    while (1)
+    while (!win)
     {
+        if (frog->row == 0)
+        {
+            win = 1;
+            cbreak();
+        }
+        
         print_stats(stat_section, frog);
         box(stat_section->window, 0, 0);
         wrefresh(stat_section->window);
@@ -119,9 +130,10 @@ void start_game(WINDOW *window)
 
         int key = getch();
         move_frog(frog, board_section, key);
-        
-        move_cars(&cars);
+
+        move_cars(&cars);        
     }
+    getch();
 
     delwin(stat_section->window);
     delwin(board_section->window);
