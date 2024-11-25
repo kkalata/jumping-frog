@@ -122,6 +122,37 @@ void init_level(SUBWINDOW *board, FROG *frog)
     }
 }
 
+void move_frog(FROG *frog, const SUBWINDOW *board, int key)
+{
+    switch (key)
+    {
+    case KEY_UP:
+        if (frog->row - 1 >= 0)
+        {
+            frog->row -= 1;
+        }
+        break;
+    case KEY_DOWN:
+        if (frog->row + 1 < board->height)
+        {
+            frog->row += 1;
+        }
+        break;
+    case KEY_LEFT:
+        if (frog->col - 1 >= 0)
+        {
+            frog->col -= 1;
+        }
+        break;
+    case KEY_RIGHT:
+        if (frog->col + 1 < board->width)
+        {
+            frog->col += 1;
+        }
+        break;
+    }
+}
+
 void start_game(WINDOW *window)
 {
     print_game_title(window);
@@ -151,22 +182,8 @@ void start_game(WINDOW *window)
     {
         init_level(board_section, frog);
         wrefresh(board_section->window);
-        int c = getch();
-        switch (c)
-        {
-        case KEY_UP:
-            frog->row -= 1;
-            break;
-        case KEY_DOWN:
-            frog->row += 1;
-            break;
-        case KEY_LEFT:
-            frog->col -= 1;
-            break;
-        case KEY_RIGHT:
-            frog->col += 1;
-            break;
-        }
+        int key = getch();
+        move_frog(frog, board_section, key);
     }
 
     delwin(stat_section->window);
